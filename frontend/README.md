@@ -1,12 +1,114 @@
-# React + Vite
+# OAuth Authentication System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Клиентская часть системы аутентификации OAuth, предоставляющая пользовательский интерфейс для входа через Google и GitHub.
 
-Currently, two official plugins are available:
+## Технологии
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19
+- React Router 7
+- Axios для HTTP-запросов
+- Vite для сборки
+- Docker для контейнеризации
+- Nginx для обслуживания статических файлов
 
-## Expanding the ESLint configuration
+## Структура проекта
+frontend/
+├── public/ # Статические файлы
+├── src/
+│ ├── assets/ # Изображения и другие ресурсы
+│ ├── components/ # React компоненты
+│ │ └── auth/ # Компоненты аутентификации
+│ ├── App.jsx # Основной компонент приложения
+│ ├── App.css # Стили основного компонента
+│ ├── index.css # Глобальные стили
+│ └── main.jsx # Точка входа приложения
+├── .env # Переменные окружения
+├── .env.example # Пример файла переменных окружения
+├── Dockerfile # Инструкции для сборки Docker-образа
+├── nginx.conf # Конфигурация Nginx
+├── package.json # Зависимости и скрипты
+└── README.md # Этот файл
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Компоненты
+
+### Аутентификация
+
+- **AuthContext.jsx** - Контекст для управления состоянием аутентификации
+- **GoogleLogin.jsx** - Кнопка входа через Google
+- **GoogleCallback.jsx** - Обработчик callback от Google OAuth
+- **GithubLogin.jsx** - Кнопка входа через GitHub
+- **GithubCallback.jsx** - Обработчик callback от GitHub OAuth
+- **LoginPage.jsx** - Страница входа с кнопками аутентификации
+- **PrivateRoute.jsx** - Компонент для защиты маршрутов
+
+### Основные компоненты
+
+- **Dashboard.jsx** - Страница профиля пользователя после входа
+- **App.jsx** - Основной компонент с маршрутизацией
+
+## Маршруты
+
+- `/` - Главная страница (перенаправляет на страницу входа)
+- `/login` - Страница входа
+- `/auth/google/callback` - Обработчик callback от Google OAuth
+- `/auth/github/callback` - Обработчик callback от GitHub OAuth
+- `/dashboard` - Защищенная страница профиля пользователя
+
+## Настройка и запуск
+
+### Переменные окружения
+
+Создайте файл `.env` на основе `.env.example` и заполните следующие переменные:
+
+VITE_GITHUB_CLIENT_ID=your-github-client-id
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+
+### Запуск в режиме разработки
+```bash
+npm install
+npm run dev
+```
+
+
+### Сборка для продакшена
+```bash
+npm run build
+```
+
+## Запуск с использованием Docker
+```bash
+docker build -t oauth-frontend .
+docker run -p 8080:8080 oauth-frontend
+```
+
+
+## Процесс аутентификации
+
+### Google OAuth
+
+1. Пользователь нажимает кнопку "Войти через Google"
+2. Происходит перенаправление на страницу аутентификации Google
+3. После успешной аутентификации Google перенаправляет пользователя обратно на `/auth/google/callback` с кодом авторизации
+4. Компонент `GoogleCallback` отправляет код на бэкенд
+5. Бэкенд обменивает код на токен доступа и получает информацию о пользователе
+6. Фронтенд сохраняет токен и информацию о пользователе в `localStorage` и контексте `AuthContext`
+7. Пользователь перенаправляется на защищенную страницу `/dashboard`
+
+### GitHub OAuth
+
+1. Пользователь нажимает кнопку "Войти через GitHub"
+2. Происходит перенаправление на страницу аутентификации GitHub
+3. После успешной аутентификации GitHub перенаправляет пользователя обратно на `/auth/github/callback` с кодом авторизации
+4. Компонент `GithubCallback` отправляет код на бэкенд
+5. Бэкенд обменивает код на токен доступа и получает информацию о пользователе
+6. Фронтенд сохраняет токен и информацию о пользователе в `localStorage` и контексте `AuthContext`
+7. Пользователь перенаправляется на защищенную страницу `/dashboard`
+
+## Стилизация
+
+Приложение использует простые CSS стили, определенные в файлах:
+- `src/index.css` - глобальные стили
+- `src/App.css` - стили для основного компонента
+
+Для улучшения внешнего вида можно интегрировать CSS-фреймворки, такие как Bootstrap, Material-UI или Tailwind CSS.
